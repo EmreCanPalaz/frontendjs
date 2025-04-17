@@ -139,4 +139,35 @@
   margin-bottom: 1rem;
   border-radius: 4px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Yükleniyor Animation */
+.loading-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(21, 87, 36, 0.3);
+  border-radius: 50%;
+  border-top-color: #155724;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Form Disabled Durumu */
+.auth-form input:disabled,
+.auth-form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Form Buton Hover Efekti */
+.auth-form button:not(:disabled):hover {
+  opacity: 0.9;
 }

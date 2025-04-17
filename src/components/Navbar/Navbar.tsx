@@ -10,11 +10,8 @@ interface NavbarProps {
   onStockControlClick?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClick, onFavoritesClick, onStockControlClick }) => {
+const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClick, onFavoritesClick }) => {
   const { userData, logout, favorites } = useAppContext();
-
-  // Debug için userData içeriğini konsola yazdır
-  console.log('Navbar - userData:', userData);
 
   // Sayfa içinde gezinme fonksiyonu
   const handleNavigation = (id: string, e: React.MouseEvent) => {
@@ -45,32 +42,21 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+    <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container">
-        <a className="navbar-brand" href="#" onClick={(e) => handleNavigation('hero-section', e)}>E-Shop</a>
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <a className="navbar-brand" href="#hero-section">ShopApp</a>
+
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav me-auto">
             <li className="nav-item">
-              <a className="nav-link active" aria-current="page" href="#" onClick={(e) => handleNavigation('hero-section', e)}>Home</a>
+              <a className="nav-link active" href="#hero-section">Ana Sayfa</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#" onClick={(e) => handleNavigation('products-section', e)}>Products</a>
-            </li>
-            <li className="nav-item dropdown">
-              <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Categories
-              </a>
-              <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a className="dropdown-item" href="#" onClick={(e) => handleCategorySelect("electronics", e)}>Electronics</a></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => handleCategorySelect("men's clothing", e)}>Men's Clothing</a></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => handleCategorySelect("women's clothing", e)}>Women's Clothing</a></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => handleCategorySelect("jewelery", e)}>Jewelry</a></li>
-                <li><hr className="dropdown-divider" /></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => handleCategorySelect(null, e)}>All Products</a></li>
-              </ul>
+              <a className="nav-link" href="#products-section">Ürünler</a>
             </li>
             <li className="nav-item">
               <button
@@ -95,7 +81,7 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
               title="Favorilerinizi görüntüle"
             >
               <i className="bi bi-heart"></i>
-              {favorites.length > 0 && (
+              {favorites && favorites.length > 0 && (
                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                   {favorites.length}
                 </span>

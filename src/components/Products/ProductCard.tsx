@@ -31,6 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   } = useAppContext();
   
   const [showReviews, setShowReviews] = useState(false);
+  const [showShareOptions, setShowShareOptions] = useState(false);
   
   // Bu ürün favori mi kontrol edelim
   const productIsFavorite = isFavorite(id);
@@ -82,6 +83,57 @@ const ProductCard: React.FC<ProductCardProps> = ({
     setShowReviews(!showReviews);
   };
   
+  // Paylaşım seçeneklerini göster/gizle
+  const toggleShareOptions = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowShareOptions(!showShareOptions);
+  };
+  
+  // Ürün linkini kopyala
+  const copyProductLink = () => {
+    const productLink = `${window.location.origin}/product/${id}`;
+    navigator.clipboard.writeText(productLink)
+      .then(() => {
+        alert('Ürün linki kopyalandı!');
+        setShowShareOptions(false);
+      })
+      .catch(err => {
+        console.error('Link kopyalanamadı:', err);
+        alert('Link kopyalanamadı. Lütfen tekrar deneyin.');
+      });
+  };
+  
+  // Sosyal medyada paylaş
+  const shareOnSocialMedia = (platform: string) => {
+    const productLink = `${window.location.origin}/product/${id}`;
+    const productTitle = encodeURIComponent(title);
+    const productDescription = encodeURIComponent(description.substring(0, 100) + '...');
+    
+    let shareUrl = '';
+    
+    switch(platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(productLink)}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${productTitle}&url=${encodeURIComponent(productLink)}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://wa.me/?text=${productTitle} - ${encodeURIComponent(productLink)}`;
+        break;
+      case 'email':
+        shareUrl = `mailto:?subject=${productTitle}&body=${productDescription}%0A%0A${encodeURIComponent(productLink)}`;
+        break;
+      default:
+        break;
+    }
+    
+    if (shareUrl) {
+      window.open(shareUrl, '_blank', 'noopener,noreferrer');
+      setShowShareOptions(false);
+    }
+  };
+  
   return (
     <div className="card product-card h-100">
       <div className="product-image-container">
@@ -123,6 +175,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <div>
             <button 
               className="btn btn-sm btn-outline-secondary me-1" 
+              onClick={toggleShareOptions}
+              title="Ürünü paylaş"
+            >
+              <i className="bi bi-share"></i>
+            </button>
+            <button 
+              className="btn btn-sm btn-outline-secondary me-1" 
               onClick={handleViewDetails}
               title="Ürün detaylarını görüntüle"
             >
@@ -145,6 +204,55 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         </div>
       </div>
+      
+      {/* Paylaşım seçenekleri */}
+      {showShareOptions && (
+        <div className="share-options-overlay" onClick={toggleShareOptions}>
+          <div className="share-options-container" onClick={e => e.stopPropagation()}>
+            <div className="share-options-header">
+              <h3>Ürünü Paylaş</h3>
+              <button className="close-btn" onClick={toggleShareOptions}>&times;</button>
+            </div>
+            
+            <div className="share-options-body">
+              <div className="product-share-preview">
+                <img src={image} alt={title} className="share-product-image" />
+                <div className="share-product-info">
+                  <h5>{title}</h5>
+                  <p className="share-product-price">${price.toFixed(2)}</p>
+                </div>
+              </div>
+              
+              <div className="share-options-buttons">
+                <button className="share-option-btn copy" onClick={copyProductLink}>
+                  <i className="bi bi-link-45deg"></i>
+                  <span>Linki Kopyala</span>
+                </button>
+                
+                <button className="share-option-btn facebook" onClick={() => shareOnSocialMedia('facebook')}>
+                  <i className="bi bi-facebook"></i>
+                  <span>Facebook</span>
+                </button>
+                
+                <button className="share-option-btn twitter" onClick={() => shareOnSocialMedia('twitter')}>
+                  <i className="bi bi-twitter"></i>
+                  <span>Twitter</span>
+                </button>
+                
+                <button className="share-option-btn whatsapp" onClick={() => shareOnSocialMedia('whatsapp')}>
+                  <i className="bi bi-whatsapp"></i>
+                  <span>WhatsApp</span>
+                </button>
+                
+                <button className="share-option-btn email" onClick={() => shareOnSocialMedia('email')}>
+                  <i className="bi bi-envelope"></i>
+                  <span>Email</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Yorumlar Modal */}
       {showReviews && (
