@@ -10,7 +10,7 @@ interface NavbarProps {
   onStockControlClick?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClick, onFavoritesClick }) => {
+const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClick, onFavoritesClick, onStockControlClick }) => {
   const { userData, logout, favorites } = useAppContext();
 
   // Sayfa içinde gezinme fonksiyonu
