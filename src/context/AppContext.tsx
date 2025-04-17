@@ -26,6 +26,16 @@ export interface CartItem extends ProductProps {
   quantity: number;
 }
 
+// Geri bildirim anketi için yeni bir tip tanımlıyoruz
+export interface FeedbackSurvey {
+  id: number;
+  reviewId: number;
+  userId: string;
+  satisfaction: number;
+  comments?: string;
+  date: string;
+}
+
 // Yorum tipi tanımlaması
 export interface Review {
   id: number;
@@ -66,6 +76,12 @@ interface AppContextType {
   getProductReviews: (productId: number) => Review[];
   getUserReviews: () => Review[];
   deleteReview: (reviewId: number) => void;
+
+  // Feedback Surveys
+  showFeedbackSurvey: boolean;
+  lastReviewId: number | null;
+  submitFeedbackSurvey: (reviewId: number, satisfaction: number, comments?: string) => void;
+  closeFeedbackSurvey: () => void;
 }
 
 // Context oluşturma
@@ -90,6 +106,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([]);
+
+  // Feedback Survey state
+  const [feedbackSurveys, setFeedbackSurveys] = useState<FeedbackSurvey[]>([]);
+  const [showFeedbackSurvey, setShowFeedbackSurvey] = useState(false);
+  const [lastReviewId, setLastReviewId] = useState<number | null>(null);
 
   // LocalStorage'dan verileri yükleme
   useEffect(() => {
@@ -125,6 +146,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.error('Yorumlar verisi ayrıştırılamadı:', e);
       }
     }
+
+    // Geri bildirim anketlerini yükle
+    const savedFeedbackSurveys = localStorage.getItem('feedbackSurveys');
+    if (savedFeedbackSurveys) {
+      try {
+        const parsedFeedbackSurveys = JSON.parse(savedFeedbackSurveys);
+        setFeedbackSurveys(parsedFeedbackSurveys);
+      } catch (e) {
+        console.error('Geri bildirim anketleri verisi ayrıştırılamadı:', e);
+      }
+    }
   }, []);
 
   // Sepet güncellendiğinde localStorage'a kaydetme ve total hesaplama
@@ -145,6 +177,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     localStorage.setItem('reviews', JSON.stringify(reviews));
   }, [reviews]);
+
+  // Geri bildirim anketleri güncellendiğinde localStorage'a kaydetme
+  useEffect(() => {
+    localStorage.setItem('feedbackSurveys', JSON.stringify(feedbackSurveys));
+  }, [feedbackSurveys]);
 
   // Login fonksiyonu
   const login = (email: string, password: string) => {
@@ -285,8 +322,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       return;
     }
 
+    const newReviewId = Date.now(); // Benzersiz ID için timestamp kullanıyoruz
     const newReview: Review = {
-      id: Date.now(), // Benzersiz ID için timestamp kullanıyoruz
+      id: newReviewId,
       productId,
       userId: userData.email, // Kullanıcı ID'si olarak email'i kullanıyoruz
       userName: userData.username,
@@ -296,6 +334,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     setReviews(prevReviews => [...prevReviews, newReview]);
+
+    // Yorum eklendikten sonra geri bildirim anketini göster
+    setLastReviewId(newReviewId);
+    setShowFeedbackSurvey(true);
   };
 
   // Ürüne ait yorumları getirme
@@ -312,6 +354,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Yorum silme
   const deleteReview = (reviewId: number) => {
     setReviews(prevReviews => prevReviews.filter(review => review.id !== reviewId));
+  };
+
+  // Geri bildirim anketi gönderme
+  const submitFeedbackSurvey = (reviewId: number, satisfaction: number, comments?: string) => {
+    const newFeedbackSurvey: FeedbackSurvey = {
+      id: Date.now(),
+      reviewId,
+      userId: userData.email,
+      satisfaction,
+      comments,
+      date: new Date().toISOString()
+    };
+
+    setFeedbackSurveys(prevSurveys => [...prevSurveys, newFeedbackSurvey]);
+    setShowFeedbackSurvey(false);
+    setLastReviewId(null);
+  };
+
+  // Geri bildirim anketini kapatma
+  const closeFeedbackSurvey = () => {
+    setShowFeedbackSurvey(false);
+    setLastReviewId(null);
   };
 
   // Context value
@@ -335,7 +399,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     addReview,
     getProductReviews,
     getUserReviews,
-    deleteReview
+    deleteReview,
+    showFeedbackSurvey,
+    lastReviewId,
+    submitFeedbackSurvey,
+    closeFeedbackSurvey
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
