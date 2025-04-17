@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAppContext } from '../../context/AppContext';
 import './ProductCard.css';
 
 export interface ProductProps {
@@ -21,6 +22,12 @@ interface ProductCardProps extends ProductProps {
 const ProductCard: React.FC<ProductCardProps> = ({ 
   id, title, price, description, category, image, rating, onAddToCart 
 }) => {
+  // Context'ten favori fonksiyonlarını alalım
+  const { addToFavorites, removeFromFavorites, isFavorite } = useAppContext();
+  
+  // Bu ürün favori mi kontrol edelim
+  const productIsFavorite = isFavorite(id);
+  
   // Sepete ekleme işlemleri
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -42,10 +49,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
     alert(`${title} detayları görüntüleniyor...`);
   };
   
+  // Favorilere ekleme/çıkarma işlemleri
+  const handleFavoriteToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    if (productIsFavorite) {
+      removeFromFavorites(id);
+    } else {
+      addToFavorites({ id, title, price, description, category, image, rating });
+    }
+  };
+  
   return (
     <div className="card product-card h-100">
       <div className="product-image-container">
         <img src={image} className="card-img-top product-image" alt={title} />
+        <button 
+          className={`favorite-button ${productIsFavorite ? 'active' : ''}`}
+          onClick={handleFavoriteToggle}
+          title={productIsFavorite ? "Favorilerden çıkar" : "Favorilere ekle"}
+        >
+          <i className={`bi ${productIsFavorite ? 'bi-heart-fill' : 'bi-heart'}`}></i>
+        </button>
       </div>
       <div className="card-body d-flex flex-column">
         <div className="category-badge mb-2">

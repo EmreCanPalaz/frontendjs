@@ -6,10 +6,11 @@ interface NavbarProps {
   onCartClick: () => void;
   cartItemCount: number;
   onLoginClick?: () => void;
+  onFavoritesClick?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClick }) => {
-  const { userData, logout } = useAppContext();
+const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClick, onFavoritesClick }) => {
+  const { userData, logout, favorites } = useAppContext();
 
   // Sayfa içinde gezinme fonksiyonu
   const handleNavigation = (id: string, e: React.MouseEvent) => {
@@ -73,6 +74,19 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
             <button className="btn btn-outline-success" type="submit">Search</button>
           </form>
           <div className="ms-3 d-flex">
+            <button 
+              className="btn btn-outline-secondary me-2 position-relative" 
+              onClick={onFavoritesClick}
+              title="Favorilerinizi görüntüle"
+            >
+              <i className="bi bi-heart"></i>
+              {favorites.length > 0 && (
+                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  {favorites.length}
+                </span>
+              )}
+            </button>
+            
             <button 
               className="btn btn-outline-primary me-2 position-relative" 
               onClick={onCartClick}

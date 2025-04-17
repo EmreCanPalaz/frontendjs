@@ -40,6 +40,12 @@ interface AppContextType {
   removeFromCart: (productId: number) => void;
   updateItemQuantity: (productId: number, newQuantity: number) => void;
   clearCart: () => void;
+  
+  // Favorites
+  favorites: ProductProps[];
+  addToFavorites: (product: ProductProps) => void;
+  removeFromFavorites: (productId: number) => void;
+  isFavorite: (productId: number) => boolean;
 }
 
 // Context oluşturma
@@ -59,8 +65,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartTotal, setCartTotal] = useState(0);
   
-  // LocalStorage'dan sepeti yükleme
+  // Favorites state
+  const [favorites, setFavorites] = useState<ProductProps[]>([]);
+  
+  // LocalStorage'dan verileri yükleme
   useEffect(() => {
+    // Sepeti yükle
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       try {
@@ -68,6 +78,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setCartItems(parsedCart);
       } catch (e) {
         console.error('Sepet verisi ayrıştırılamadı:', e);
+      }
+    }
+    
+    // Favorileri yükle
+    const savedFavorites = localStorage.getItem('favorites');
+    if (savedFavorites) {
+      try {
+        const parsedFavorites = JSON.parse(savedFavorites);
+        setFavorites(parsedFavorites);
+      } catch (e) {
+        console.error('Favoriler verisi ayrıştırılamadı:', e);
       }
     }
   }, []);
@@ -80,6 +101,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     setCartTotal(total);
   }, [cartItems]);
+  
+  // Favoriler güncellendiğinde localStorage'a kaydetme
+  useEffect(() => {
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+  }, [favorites]);
   
   // Login fonksiyonu
   const login = (email: string, password: string) => {
@@ -171,6 +197,30 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.removeItem('cart');
   };
 
+  // Favoriler fonksiyonları
+  const addToFavorites = (product: ProductProps) => {
+    setFavorites(prevFavorites => {
+      // Ürün zaten favorilerde mi kontrol et
+      const isAlreadyFavorite = prevFavorites.some(item => item.id === product.id);
+      
+      if (isAlreadyFavorite) {
+        return prevFavorites; // Zaten favorilerdeyse bir şey yapma
+      } else {
+        return [...prevFavorites, product]; // Yeni ekle
+      }
+    });
+  };
+  
+  const removeFromFavorites = (productId: number) => {
+    setFavorites(prevFavorites => 
+      prevFavorites.filter(item => item.id !== productId)
+    );
+  };
+  
+  const isFavorite = (productId: number) => {
+    return favorites.some(item => item.id === productId);
+  };
+
   // Context value
   const value: AppContextType = {
     userData,
@@ -183,7 +233,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     addToCart,
     removeFromCart,
     updateItemQuantity,
-    clearCart
+    clearCart,
+    favorites,
+    addToFavorites,
+    removeFromFavorites,
+    isFavorite
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
