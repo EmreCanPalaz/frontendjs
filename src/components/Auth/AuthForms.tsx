@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import './AuthForms.css';
 
@@ -16,24 +16,29 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
   const [resetEmail, setResetEmail] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
-  
-  const { login, register } = useAppContext();
+
+  const { login, register, isLoading, userData } = useAppContext();
+
+  // isLoading değiştiğinde ve kullanıcı giriş yapmışsa formu kapat
+  useEffect(() => {
+    if (!isLoading && userData.isLoggedIn && onClose) {
+      onClose();
+    }
+  }, [isLoading, userData.isLoggedIn, onClose]);
 
   // Login işlemi 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!email || !password) {
       setError('Lütfen tüm alanları doldurun!');
       return;
     }
-    
+
     const success = login(email, password);
     if (!success) {
       setError('Giriş başarısız! Lütfen bilgilerinizi kontrol edin.');
-    } else if (onClose) {
-      onClose(); // Başarılı giriş sonrası kapat
     }
   };
 
@@ -41,12 +46,12 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!email || !password || !username) {
       setError('Lütfen tüm alanları doldurun!');
       return;
     }
-    
+
     const success = register(username, email, password);
     if (!success) {
       setError('Kayıt başarısız! Lütfen farklı bilgiler deneyin.');
@@ -60,12 +65,12 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
     e.preventDefault();
     setError('');
     setSuccessMessage('');
-    
+
     if (!resetEmail) {
       setError('Lütfen email adresinizi girin!');
       return;
     }
-    
+
     // Burada normalde bir API çağrısı yapılırdı
     // Örnek başarılı bir işlem simüle ediyoruz
     setTimeout(() => {
@@ -108,26 +113,26 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
         <button className="close-button" onClick={onClose}>
           &times;
         </button>
-        
+
         {!showForgotPassword ? (
           <>
             <div className="auth-forms-header">
-              <button 
-                className={`tab-btn ${showLoginForm ? 'active' : ''}`} 
+              <button
+                className={`tab-btn ${showLoginForm ? 'active' : ''}`}
                 onClick={() => setShowLoginForm(true)}
               >
                 Giriş Yap
               </button>
-              <button 
-                className={`tab-btn ${!showLoginForm ? 'active' : ''}`} 
+              <button
+                className={`tab-btn ${!showLoginForm ? 'active' : ''}`}
                 onClick={() => setShowLoginForm(false)}
               >
                 Kayıt Ol
               </button>
             </div>
-            
+
             {error && <div className="error-message">{error}</div>}
-            
+
             {showLoginForm ? (
               <form onSubmit={handleLogin} className="auth-form">
                 <div className="form-group">
@@ -140,7 +145,7 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
                     required
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label htmlFor="login-password">Şifre</label>
                   <input
@@ -151,15 +156,15 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
                     required
                   />
                 </div>
-                
-                <button type="submit" className="btn btn-primary btn-block">
-                  Giriş Yap
+
+                <button type="submit" className="btn btn-primary btn-block" disabled={isLoading}>
+                  {isLoading ? 'Kimlik Doğrulanıyor...' : 'Giriş Yap'}
                 </button>
-                
+
                 <p className="form-footer">
                   Hesabınız yok mu? <button type="button" className="link-btn" onClick={toggleForm}>Kayıt Olun</button>
                 </p>
-                
+
                 <p className="forgot-password">
                   <button type="button" className="link-btn" onClick={toggleForgotPassword}>
                     Şifremi Unuttum
@@ -178,7 +183,7 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
                     required
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label htmlFor="register-email">Email</label>
                   <input
@@ -189,7 +194,7 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
                     required
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label htmlFor="register-password">Şifre</label>
                   <input
@@ -200,11 +205,11 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
                     required
                   />
                 </div>
-                
-                <button type="submit" className="btn btn-primary btn-block">
-                  Kayıt Ol
+
+                <button type="submit" className="btn btn-primary btn-block" disabled={isLoading}>
+                  {isLoading ? 'Hesap Oluşturuluyor...' : 'Kayıt Ol'}
                 </button>
-                
+
                 <p className="form-footer">
                   Zaten hesabınız var mı? <button type="button" className="link-btn" onClick={toggleForm}>Giriş Yapın</button>
                 </p>
@@ -215,10 +220,10 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
           // Şifremi unuttum formu
           <div>
             <h3 className="forgot-title">Şifremi Unuttum</h3>
-            
+
             {error && <div className="error-message">{error}</div>}
             {successMessage && <div className="success-message">{successMessage}</div>}
-            
+
             <form onSubmit={handleForgotPassword} className="auth-form">
               <div className="form-group">
                 <label htmlFor="reset-email">Email Adresi</label>
@@ -231,11 +236,11 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
                   required
                 />
               </div>
-              
+
               <button type="submit" className="btn btn-primary btn-block">
                 Şifre Sıfırlama Bağlantısı Gönder
               </button>
-              
+
               <p className="form-footer">
                 <button type="button" className="link-btn" onClick={backToLogin}>
                   Giriş sayfasına dön

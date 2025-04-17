@@ -5,6 +5,7 @@ export interface UserData {
   username: string;
   email: string;
   isLoggedIn: boolean;
+  isAdmin?: boolean;
 }
 
 export interface ProductProps {
@@ -43,7 +44,7 @@ interface AppContextType {
   login: (email: string, password: string) => boolean;
   register: (username: string, email: string, password: string) => boolean;
   logout: () => void;
-  
+
   // Cart
   cartItems: CartItem[];
   cartTotal: number;
@@ -51,13 +52,13 @@ interface AppContextType {
   removeFromCart: (productId: number) => void;
   updateItemQuantity: (productId: number, newQuantity: number) => void;
   clearCart: () => void;
-  
+
   // Favorites
   favorites: ProductProps[];
   addToFavorites: (product: ProductProps) => void;
   removeFromFavorites: (productId: number) => void;
   isFavorite: (productId: number) => boolean;
-  
+
   // Reviews
   reviews: Review[];
   addReview: (productId: number, rating: number, comment: string) => void;
@@ -78,17 +79,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     isLoggedIn: false
   });
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Cart state
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartTotal, setCartTotal] = useState(0);
-  
+
   // Favorites state
   const [favorites, setFavorites] = useState<ProductProps[]>([]);
-  
+
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([]);
-  
+
   // LocalStorage'dan verileri yükleme
   useEffect(() => {
     // Sepeti yükle
@@ -101,7 +102,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.error('Sepet verisi ayrıştırılamadı:', e);
       }
     }
-    
+
     // Favorileri yükle
     const savedFavorites = localStorage.getItem('favorites');
     if (savedFavorites) {
@@ -112,7 +113,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.error('Favoriler verisi ayrıştırılamadı:', e);
       }
     }
-    
+
     // Yorumları yükle
     const savedReviews = localStorage.getItem('reviews');
     if (savedReviews) {
@@ -124,77 +125,88 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     }
   }, []);
-  
+
   // Sepet güncellendiğinde localStorage'a kaydetme ve total hesaplama
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
-    
+
     // Toplam fiyatı hesapla
     const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     setCartTotal(total);
   }, [cartItems]);
-  
+
   // Favoriler güncellendiğinde localStorage'a kaydetme
   useEffect(() => {
     localStorage.setItem('favorites', JSON.stringify(favorites));
   }, [favorites]);
-  
+
   // Yorumlar güncellendiğinde localStorage'a kaydetme
   useEffect(() => {
     localStorage.setItem('reviews', JSON.stringify(reviews));
   }, [reviews]);
-  
+
   // Login fonksiyonu
   const login = (email: string, password: string) => {
     setIsLoading(true);
-    
+
     // Burada normalde API çağrısı yapılırdı
     // Örnek olarak basit bir simülasyon yapıyoruz
     setTimeout(() => {
+      // admin@example.com ile giriş yapanları admin olarak işaretle
+      const isAdmin = email === 'admin@example.com';
+
+      console.log('Kullanıcı giriş yapıyor:', { email, isAdmin });
+
       setUserData({
         username: email.split('@')[0],
         email,
-        isLoggedIn: true
+        isLoggedIn: true,
+        isAdmin
       });
       setIsLoading(false);
-    }, 500);
-    
+    }, 1500); // Kimlik doğrulama mesajının daha görünür olması için süreyi uzattık
+
     return true;
   };
-  
+
   // Register fonksiyonu
   const register = (username: string, email: string, password: string) => {
     setIsLoading(true);
-    
+
     // Burada normalde API çağrısı yapılırdı
     // Örnek olarak basit bir simülasyon yapıyoruz
     setTimeout(() => {
+      // admin@example.com ile kayıt olanları admin olarak işaretle
+      const isAdmin = email === 'admin@example.com';
+
       setUserData({
         username,
         email,
-        isLoggedIn: true
+        isLoggedIn: true,
+        isAdmin
       });
       setIsLoading(false);
-    }, 500);
-    
+    }, 1500); // Kayıt işlemi mesajının görünür olması için süreyi uzattık
+
     return true;
   };
-  
+
   // Logout fonksiyonu
   const logout = () => {
     setUserData({
       username: '',
       email: '',
-      isLoggedIn: false
+      isLoggedIn: false,
+      isAdmin: false
     });
   };
-  
+
   // Sepete ürün ekleme
   const addToCart = (product: ProductProps) => {
     setCartItems(prevItems => {
       // Ürün zaten sepette var mı kontrol et
       const existingItemIndex = prevItems.findIndex(item => item.id === product.id);
-      
+
       if (existingItemIndex >= 0) {
         // Varsa miktarını artır
         const updatedItems = [...prevItems];
@@ -206,28 +218,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     });
   };
-  
+
   // Sepetten ürün silme
   const removeFromCart = (productId: number) => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
   };
-  
+
   // Ürün miktarını güncelleme
   const updateItemQuantity = (productId: number, newQuantity: number) => {
     if (newQuantity <= 0) {
       removeFromCart(productId);
       return;
     }
-    
-    setCartItems(prevItems => 
-      prevItems.map(item => 
-        item.id === productId 
-          ? { ...item, quantity: newQuantity } 
+
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.id === productId
+          ? { ...item, quantity: newQuantity }
           : item
       )
     );
   };
-  
+
   // Sepeti temizleme
   const clearCart = () => {
     setCartItems([]);
@@ -239,7 +251,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setFavorites(prevFavorites => {
       // Ürün zaten favorilerde mi kontrol et
       const isAlreadyFavorite = prevFavorites.some(item => item.id === product.id);
-      
+
       if (isAlreadyFavorite) {
         return prevFavorites; // Zaten favorilerdeyse bir şey yapma
       } else {
@@ -247,13 +259,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     });
   };
-  
+
   const removeFromFavorites = (productId: number) => {
-    setFavorites(prevFavorites => 
+    setFavorites(prevFavorites =>
       prevFavorites.filter(item => item.id !== productId)
     );
   };
-  
+
   const isFavorite = (productId: number) => {
     return favorites.some(item => item.id === productId);
   };
@@ -264,7 +276,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       alert('Yorum yapabilmek için giriş yapmalısınız!');
       return;
     }
-    
+
     const newReview: Review = {
       id: Date.now(), // Benzersiz ID için timestamp kullanıyoruz
       productId,
@@ -274,21 +286,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       comment,
       date: new Date().toISOString()
     };
-    
+
     setReviews(prevReviews => [...prevReviews, newReview]);
   };
-  
+
   // Ürüne ait yorumları getirme
   const getProductReviews = (productId: number) => {
     return reviews.filter(review => review.productId === productId);
   };
-  
+
   // Kullanıcının yaptığı yorumları getirme
   const getUserReviews = () => {
     if (!userData.isLoggedIn) return [];
     return reviews.filter(review => review.userId === userData.email);
   };
-  
+
   // Yorum silme
   const deleteReview = (reviewId: number) => {
     setReviews(prevReviews => prevReviews.filter(review => review.id !== reviewId));

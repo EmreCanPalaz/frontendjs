@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppContext } from '../context/AppContext';
+import { useAppContext } from '../../context/AppContext';
 import './Navbar.css';
 
 interface NavbarProps {
@@ -7,10 +7,14 @@ interface NavbarProps {
   cartItemCount: number;
   onLoginClick?: () => void;
   onFavoritesClick?: () => void;
+  onStockControlClick?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClick, onFavoritesClick }) => {
+const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClick, onFavoritesClick, onStockControlClick }) => {
   const { userData, logout, favorites } = useAppContext();
+
+  // Debug için userData içeriğini konsola yazdır
+  console.log('Navbar - userData:', userData);
 
   // Sayfa içinde gezinme fonksiyonu
   const handleNavigation = (id: string, e: React.MouseEvent) => {
@@ -24,18 +28,18 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
   // Kategori seçme fonksiyonu
   const handleCategorySelect = (category: string | null, e: React.MouseEvent) => {
     e.preventDefault();
-    
+
     // Kategori değişikliğini global state'e aktar
     if (window.localStorage) {
       window.localStorage.setItem('selectedCategory', category || '');
     }
-    
+
     // Ürünler bölümüne git
     const productsSection = document.getElementById('products-section');
     if (productsSection) {
       productsSection.scrollIntoView({ behavior: 'smooth' });
     }
-    
+
     // Sayfayı yenile (kategori filtresini uygulamak için)
     window.location.reload();
   };
@@ -68,14 +72,25 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
                 <li><a className="dropdown-item" href="#" onClick={(e) => handleCategorySelect(null, e)}>All Products</a></li>
               </ul>
             </li>
+            <li className="nav-item">
+              <button
+                className="btn btn-danger nav-link"
+                onClick={() => {
+                  console.log('Stok Kontrol butonuna tıklandı');
+                  if (onStockControlClick) onStockControlClick();
+                }}
+              >
+                Stok Kontrol (Test)
+              </button>
+            </li>
           </ul>
           <form className="d-flex">
             <input className="form-control me-2" type="search" placeholder="Search products..." aria-label="Search" />
             <button className="btn btn-outline-success" type="submit">Search</button>
           </form>
           <div className="ms-3 d-flex">
-            <button 
-              className="btn btn-outline-secondary me-2 position-relative" 
+            <button
+              className="btn btn-outline-secondary me-2 position-relative"
               onClick={onFavoritesClick}
               title="Favorilerinizi görüntüle"
             >
@@ -86,9 +101,9 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
                 </span>
               )}
             </button>
-            
-            <button 
-              className="btn btn-outline-primary me-2 position-relative" 
+
+            <button
+              className="btn btn-outline-primary me-2 position-relative"
               onClick={onCartClick}
               title="Sepeti görüntüle"
             >
@@ -99,7 +114,7 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
                 </span>
               )}
             </button>
-            
+
             {userData.isLoggedIn ? (
               <div className="dropdown">
                 <button className="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -113,7 +128,7 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
                 </ul>
               </div>
             ) : (
-              <button 
+              <button
                 className="btn btn-primary"
                 onClick={onLoginClick}
               >
