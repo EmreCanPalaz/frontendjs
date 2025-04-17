@@ -11,7 +11,7 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClick, onFavoritesClick, onStockControlClick }) => {
-  const { userData, logout, favorites } = useAppContext();
+  const { userData, logout, favorites, language, changeLanguage, translate } = useAppContext();
 
   // Sayfa içinde gezinme fonksiyonu
   const handleNavigation = (id: string, e: React.MouseEvent) => {
@@ -53,10 +53,10 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav me-auto">
             <li className="nav-item">
-              <a className="nav-link active" href="#hero-section">Ana Sayfa</a>
+              <a className="nav-link active" href="#hero-section">{translate('navHome')}</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#products-section">Ürünler</a>
+              <a className="nav-link" href="#products-section">{translate('navProducts')}</a>
             </li>
             {userData.hasStockControlAccess && (
               <li className="nav-item">
@@ -67,20 +67,46 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
                     if (onStockControlClick) onStockControlClick();
                   }}
                 >
-                  Stok Kontrol
+                  {translate('navStockControl')}
                 </button>
               </li>
             )}
           </ul>
           <form className="d-flex">
-            <input className="form-control me-2" type="search" placeholder="Search products..." aria-label="Search" />
-            <button className="btn btn-outline-success" type="submit">Search</button>
+            <input className="form-control me-2" type="search" placeholder={translate('navSearch')} aria-label="Search" />
+            <button className="btn btn-outline-success" type="submit">{translate('navSearchButton')}</button>
           </form>
           <div className="ms-3 d-flex">
+            {/* Dil seçim dropdown'u */}
+            <div className="dropdown me-2">
+              <button className="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i className="bi bi-translate me-1"></i>
+                {language.toUpperCase()}
+              </button>
+              <ul className="dropdown-menu dropdown-menu-end">
+                <li>
+                  <button
+                    className={`dropdown-item ${language === 'tr' ? 'active' : ''}`}
+                    onClick={() => changeLanguage('tr')}
+                  >
+                    <span className="flag-icon flag-icon-tr me-2"></span> Türkçe
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`dropdown-item ${language === 'en' ? 'active' : ''}`}
+                    onClick={() => changeLanguage('en')}
+                  >
+                    <span className="flag-icon flag-icon-gb me-2"></span> English
+                  </button>
+                </li>
+              </ul>
+            </div>
+
             <button
               className="btn btn-outline-secondary me-2 position-relative"
               onClick={onFavoritesClick}
-              title="Favorilerinizi görüntüle"
+              title={translate('navFavorites')}
             >
               <i className="bi bi-heart"></i>
               {favorites && favorites.length > 0 && (
@@ -93,7 +119,7 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
             <button
               className="btn btn-outline-primary me-2 position-relative"
               onClick={onCartClick}
-              title="Sepeti görüntüle"
+              title={translate('navCart')}
             >
               <i className="bi bi-cart"></i>
               {cartItemCount > 0 && (
@@ -109,10 +135,10 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
                   {userData.username}
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end">
-                  <li><button className="dropdown-item" type="button">Hesabım</button></li>
-                  <li><button className="dropdown-item" type="button">Siparişlerim</button></li>
+                  <li><button className="dropdown-item" type="button">{translate('navAccount')}</button></li>
+                  <li><button className="dropdown-item" type="button">{translate('navOrders')}</button></li>
                   <li><hr className="dropdown-divider" /></li>
-                  <li><button className="dropdown-item" type="button" onClick={logout}>Çıkış Yap</button></li>
+                  <li><button className="dropdown-item" type="button" onClick={logout}>{translate('navLogout')}</button></li>
                 </ul>
               </div>
             ) : (
@@ -120,7 +146,7 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
                 className="btn btn-primary"
                 onClick={onLoginClick}
               >
-                Giriş Yap
+                {translate('navLogin')}
               </button>
             )}
           </div>

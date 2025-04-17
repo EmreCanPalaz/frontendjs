@@ -1,4 +1,5 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import { translations } from '../translations';
 
 // Geçici tip tanımlamaları (gerçek projenize uygun olarak güncelleyin)
 export interface UserData {
@@ -47,6 +48,12 @@ export interface Review {
   date: string;
 }
 
+// Desteklenen diller
+export type Language = 'tr' | 'en';
+
+// Çeviri anahtarları için tip
+export type TranslationKey = keyof typeof translations;
+
 // Context için tip tanımları
 interface AppContextType {
   // Auth
@@ -82,6 +89,12 @@ interface AppContextType {
   lastReviewId: number | null;
   submitFeedbackSurvey: (reviewId: number, satisfaction: number, comments?: string) => void;
   closeFeedbackSurvey: () => void;
+
+  // Language
+  language: Language;
+  changeLanguage: (lang: Language) => void;
+  translate: (key: TranslationKey) => string;
+  translateCustom: (trText: string, enText: string) => string;
 }
 
 // Context oluşturma
@@ -111,6 +124,35 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [feedbackSurveys, setFeedbackSurveys] = useState<FeedbackSurvey[]>([]);
   const [showFeedbackSurvey, setShowFeedbackSurvey] = useState(false);
   const [lastReviewId, setLastReviewId] = useState<number | null>(null);
+
+  // Language state
+  const [language, setLanguage] = useState<Language>(() => {
+    // Kullanıcının tercih ettiği dili localStorage'dan al
+    const savedLanguage = localStorage.getItem('language');
+    // Eğer kaydedilmiş bir dil varsa ve geçerli bir değerse, onu kullan
+    if (savedLanguage && (savedLanguage === 'tr' || savedLanguage === 'en')) {
+      return savedLanguage as Language;
+    }
+    // Yoksa tarayıcı dilini kontrol et, Türkçe ise tr, değilse en kullan
+    const browserLang = navigator.language.substring(0, 2).toLowerCase();
+    return browserLang === 'tr' ? 'tr' : 'en';
+  });
+
+  // Dil değiştirme fonksiyonu
+  const changeLanguage = (lang: Language) => {
+    setLanguage(lang);
+    localStorage.setItem('language', lang);
+  };
+
+  // Çeviri fonksiyonu - hazır çeviri anahtarlarını kullanır
+  const translate = (key: TranslationKey): string => {
+    return translations[key]?.[language] || key;
+  };
+
+  // Özel çeviri fonksiyonu - doğrudan metin çevirileri için
+  const translateCustom = (trText: string, enText: string): string => {
+    return language === 'tr' ? trText : enText;
+  };
 
   // LocalStorage'dan verileri yükleme
   useEffect(() => {
@@ -403,7 +445,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showFeedbackSurvey,
     lastReviewId,
     submitFeedbackSurvey,
-    closeFeedbackSurvey
+    closeFeedbackSurvey,
+    language,
+    changeLanguage,
+    translate,
+    translateCustom
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

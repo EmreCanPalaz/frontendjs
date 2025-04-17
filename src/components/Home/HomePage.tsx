@@ -15,7 +15,8 @@ const HomePage: React.FC = () => {
     userData,
     cartItems,
     addToCart,
-    isLoading
+    isLoading,
+    translate
   } = useAppContext();
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -88,14 +89,14 @@ const HomePage: React.FC = () => {
         <div className="container">
           <div className="row align-items-center">
             <div className="col-md-6">
-              <h1 className="hero-title">Find Your Style, Shop With Confidence</h1>
-              <p className="hero-subtitle">Discover the latest trends and products at amazing prices.</p>
+              <h1 className="hero-title">{translate('heroTitle')}</h1>
+              <p className="hero-subtitle">{translate('heroSubtitle')}</p>
               <button
                 className="btn btn-primary btn-lg"
                 onClick={handleShopNow}
-                title="Alışverişe başla"
+                title={translate('heroButtonTitle')}
               >
-                Shop Now
+                {translate('heroButton')}
               </button>
             </div>
             <div className="col-md-6">
@@ -118,7 +119,7 @@ const HomePage: React.FC = () => {
           <div className="col-lg-9">
             <h2 className="section-title mb-4">
               {selectedCategory === null
-                ? 'All Products'
+                ? translate('productsAllTitle')
                 : `${selectedCategory.charAt(0).toUpperCase()}${selectedCategory.slice(1)}`
               }
             </h2>
@@ -137,21 +138,21 @@ const HomePage: React.FC = () => {
 
 // İç içe FavoritesList bileşeni tanımı
 const FavoritesList = ({ onClose }: { onClose: () => void }) => {
-  const { favorites, removeFromFavorites, addToCart } = useAppContext();
+  const { favorites, removeFromFavorites, addToCart, translate } = useAppContext();
 
   return (
     <div className="favorites-overlay">
       <div className="favorites-container">
         <div className="favorites-header">
-          <h2 className="favorites-title">Favori Ürünleriniz ({favorites.length})</h2>
+          <h2 className="favorites-title">{translate('favoritesTitle')} ({favorites.length})</h2>
           <button className="close-btn" onClick={onClose}>&times;</button>
         </div>
 
         {favorites.length === 0 ? (
           <div className="empty-favorites">
             <i className="bi bi-heart"></i>
-            <p>Henüz favori ürününüz bulunmuyor.</p>
-            <p>Beğendiğiniz ürünleri favorilere ekleyerek daha sonra kolayca ulaşabilirsiniz.</p>
+            <p>{translate('favoritesEmpty')}</p>
+            <p>{translate('favoritesEmptyDescription')}</p>
           </div>
         ) : (
           <div className="favorites-list">
@@ -175,7 +176,7 @@ const FavoritesList = ({ onClose }: { onClose: () => void }) => {
                     className="btn btn-sm btn-primary"
                     onClick={() => addToCart(product)}
                   >
-                    <i className="bi bi-cart-plus"></i> Sepete Ekle
+                    <i className="bi bi-cart-plus"></i> {translate('favoritesAddToCart')}
                   </button>
                 </div>
               </div>
