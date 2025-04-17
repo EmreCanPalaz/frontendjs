@@ -1,7 +1,16 @@
 import React from 'react';
+import { useAppContext } from '../../context/AppContext';
 import './Navbar.css';
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  onCartClick: () => void;
+  cartItemCount: number;
+  onLoginClick?: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClick }) => {
+  const { userData, logout } = useAppContext();
+
   // Sayfa içinde gezinme fonksiyonu
   const handleNavigation = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -64,12 +73,39 @@ const Navbar: React.FC = () => {
             <button className="btn btn-outline-success" type="submit">Search</button>
           </form>
           <div className="ms-3 d-flex">
-            <a href="#" className="btn btn-outline-primary me-2" onClick={(e) => handleNavigation('cart-section', e)}>
-              <i className="bi bi-cart"></i> Cart
-            </a>
-            <a href="#" className="btn btn-outline-secondary" onClick={(e) => handleNavigation('account-section', e)}>
-              <i className="bi bi-person"></i> Account
-            </a>
+            <button 
+              className="btn btn-outline-primary me-2 position-relative" 
+              onClick={onCartClick}
+              title="Sepeti görüntüle"
+            >
+              <i className="bi bi-cart"></i>
+              {cartItemCount > 0 && (
+                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  {cartItemCount}
+                </span>
+              )}
+            </button>
+            
+            {userData.isLoggedIn ? (
+              <div className="dropdown">
+                <button className="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {userData.username}
+                </button>
+                <ul className="dropdown-menu dropdown-menu-end">
+                  <li><button className="dropdown-item" type="button">Hesabım</button></li>
+                  <li><button className="dropdown-item" type="button">Siparişlerim</button></li>
+                  <li><hr className="dropdown-divider" /></li>
+                  <li><button className="dropdown-item" type="button" onClick={logout}>Çıkış Yap</button></li>
+                </ul>
+              </div>
+            ) : (
+              <button 
+                className="btn btn-primary"
+                onClick={onLoginClick}
+              >
+                Giriş Yap
+              </button>
+            )}
           </div>
         </div>
       </div>

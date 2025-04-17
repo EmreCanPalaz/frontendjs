@@ -115,7 +115,7 @@ const Footer: React.FC = () => {
       
       <div className="copyright text-center py-3 mt-4 border-top border-secondary">
         <div className="container">
-          <p className="mb-0">© 2023 E-Shop. All rights reserved.</p>
+          <p className="mb-0"> Created By EmKaHan.</p>
         </div>
       </div>
     </footer>
