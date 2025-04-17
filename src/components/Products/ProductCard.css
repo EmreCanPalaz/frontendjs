@@ -94,4 +94,134 @@
   .product-image-container {
     height: 180px;
   }
+}
+
+/* Paylaşım Seçenekleri */
+.share-options-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.share-options-container {
+  background-color: white;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.share-options-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.share-options-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.share-options-body {
+  padding: 1.5rem;
+}
+
+.product-share-preview {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.share-product-image {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-right: 1rem;
+}
+
+.share-product-info {
+  flex: 1;
+}
+
+.share-product-info h5 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.share-product-price {
+  color: #007bff;
+  font-weight: bold;
+  margin: 0;
+}
+
+.share-options-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.share-option-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #f8f9fa;
+}
+
+.share-option-btn i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.share-option-btn:hover {
+  transform: translateY(-3px);
+}
+
+.share-option-btn.copy {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.share-option-btn.facebook {
+  background-color: #3b5998;
+  color: white;
+}
+
+.share-option-btn.twitter {
+  background-color: #1da1f2;
+  color: white;
+}
+
+.share-option-btn.whatsapp {
+  background-color: #25d366;
+  color: white;
+}
+
+.share-option-btn.email {
+  background-color: #f1c40f;
+  color: white;
+}
+
+/* Mobil için düzenleme */
+@media (max-width: 576px) {
+  .share-options-buttons {
+    grid-template-columns: 1fr;
+  }
 } 

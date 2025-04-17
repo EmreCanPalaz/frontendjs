@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppContext } from '../context/AppContext';
+import { useAppContext } from '../../context/AppContext';
 import './Navbar.css';
 
 interface NavbarProps {
@@ -9,78 +9,41 @@ interface NavbarProps {
   onFavoritesClick?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClick, onFavoritesClick }) => {
+const Navbar: React.FC<NavbarProps> = ({ 
+  onCartClick, 
+  cartItemCount,
+  onLoginClick,
+  onFavoritesClick 
+}) => {
   const { userData, logout, favorites } = useAppContext();
 
-  // Sayfa içinde gezinme fonksiyonu
-  const handleNavigation = (id: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  // Kategori seçme fonksiyonu
-  const handleCategorySelect = (category: string | null, e: React.MouseEvent) => {
-    e.preventDefault();
-    
-    // Kategori değişikliğini global state'e aktar
-    if (window.localStorage) {
-      window.localStorage.setItem('selectedCategory', category || '');
-    }
-    
-    // Ürünler bölümüne git
-    const productsSection = document.getElementById('products-section');
-    if (productsSection) {
-      productsSection.scrollIntoView({ behavior: 'smooth' });
-    }
-    
-    // Sayfayı yenile (kategori filtresini uygulamak için)
-    window.location.reload();
-  };
-
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+    <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container">
-        <a className="navbar-brand" href="#" onClick={(e) => handleNavigation('hero-section', e)}>E-Shop</a>
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <a className="navbar-brand" href="#hero-section">ShopApp</a>
+        
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>
         </button>
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+        
+        <div className="collapse navbar-collapse" id="navbarNav">
+          <ul className="navbar-nav me-auto">
             <li className="nav-item">
-              <a className="nav-link active" aria-current="page" href="#" onClick={(e) => handleNavigation('hero-section', e)}>Home</a>
+              <a className="nav-link active" href="#hero-section">Ana Sayfa</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#" onClick={(e) => handleNavigation('products-section', e)}>Products</a>
-            </li>
-            <li className="nav-item dropdown">
-              <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                Categories
-              </a>
-              <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a className="dropdown-item" href="#" onClick={(e) => handleCategorySelect("electronics", e)}>Electronics</a></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => handleCategorySelect("men's clothing", e)}>Men's Clothing</a></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => handleCategorySelect("women's clothing", e)}>Women's Clothing</a></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => handleCategorySelect("jewelery", e)}>Jewelry</a></li>
-                <li><hr className="dropdown-divider" /></li>
-                <li><a className="dropdown-item" href="#" onClick={(e) => handleCategorySelect(null, e)}>All Products</a></li>
-              </ul>
+              <a className="nav-link" href="#products-section">Ürünler</a>
             </li>
           </ul>
-          <form className="d-flex">
-            <input className="form-control me-2" type="search" placeholder="Search products..." aria-label="Search" />
-            <button className="btn btn-outline-success" type="submit">Search</button>
-          </form>
-          <div className="ms-3 d-flex">
+          
+          <div className="d-flex align-items-center">
             <button 
               className="btn btn-outline-secondary me-2 position-relative" 
               onClick={onFavoritesClick}
               title="Favorilerinizi görüntüle"
             >
               <i className="bi bi-heart"></i>
-              {favorites.length > 0 && (
+              {favorites && favorites.length > 0 && (
                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                   {favorites.length}
                 </span>

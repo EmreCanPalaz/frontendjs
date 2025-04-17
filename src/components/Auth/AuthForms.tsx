@@ -16,43 +16,81 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
   const [resetEmail, setResetEmail] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isAuthenticating, setIsAuthenticating] = useState(false);  // Kimlik doğrulama durumu
   
-  const { login, register } = useAppContext();
+  const { login, register, isLoading } = useAppContext();
 
   // Login işlemi 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     
     if (!email || !password) {
       setError('Lütfen tüm alanları doldurun!');
       return;
     }
     
-    const success = login(email, password);
-    if (!success) {
-      setError('Giriş başarısız! Lütfen bilgilerinizi kontrol edin.');
-    } else if (onClose) {
-      onClose(); // Başarılı giriş sonrası kapat
-    }
+    // Kimlik doğrulama durumunu başlat
+    setIsAuthenticating(true);
+    setSuccessMessage('Kimliğiniz doğrulanıyor...');
+    
+    // Sahte gecikme ekleyerek doğrulama animasyonu gösterme
+    setTimeout(() => {
+      const loginSuccess = login(email, password);
+      
+      setIsAuthenticating(false);
+      
+      if (!loginSuccess) {
+        setError('Giriş başarısız! Lütfen bilgilerinizi kontrol edin.');
+        setSuccessMessage('');
+      } else {
+        setSuccessMessage('Giriş başarılı! Yönlendiriliyorsunuz...');
+        // 1 saniye sonra modal'ı kapat
+        setTimeout(() => {
+          if (onClose) onClose();
+        }, 1000);
+      }
+    }, 1500); // 1.5 saniye doğrulama mesajını göster
   };
 
   // Kayıt işlemi
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     
     if (!email || !password || !username) {
       setError('Lütfen tüm alanları doldurun!');
       return;
     }
     
-    const success = register(username, email, password);
-    if (!success) {
-      setError('Kayıt başarısız! Lütfen farklı bilgiler deneyin.');
-    } else if (onClose) {
-      onClose(); // Başarılı kayıt sonrası kapat
+    if (password.length < 6) {
+      setError('Şifre en az 6 karakter olmalıdır!');
+      return;
     }
+    
+    // Kimlik doğrulama durumunu başlat
+    setIsAuthenticating(true);
+    setSuccessMessage('Hesabınız oluşturuluyor...');
+    
+    // Sahte gecikme ekleyerek işlem süreci göster
+    setTimeout(() => {
+      const registerSuccess = register(username, email, password);
+      
+      setIsAuthenticating(false);
+      
+      if (!registerSuccess) {
+        setError('Kayıt başarısız! Lütfen farklı bilgiler deneyin.');
+        setSuccessMessage('');
+      } else {
+        setSuccessMessage('Kayıt başarılı! Hoş geldiniz...');
+        // 1 saniye sonra modal'ı kapat
+        setTimeout(() => {
+          if (onClose) onClose();
+        }, 1000);
+      }
+    }, 1500); // 1.5 saniye mesajı göster
   };
 
   // Şifre sıfırlama işlemi
@@ -109,6 +147,15 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
           &times;
         </button>
         
+        {/* Hata ve Başarı Mesajları */}
+        {error && <div className="error-message">{error}</div>}
+        {successMessage && (
+          <div className="success-message">
+            {isAuthenticating && <div className="loading-spinner"></div>}
+            {successMessage}
+          </div>
+        )}
+        
         {!showForgotPassword ? (
           <>
             <div className="auth-forms-header">
@@ -126,8 +173,6 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
               </button>
             </div>
             
-            {error && <div className="error-message">{error}</div>}
-            
             {showLoginForm ? (
               <form onSubmit={handleLogin} className="auth-form">
                 <div className="form-group">
@@ -138,6 +183,7 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    disabled={isAuthenticating || isLoading}
                   />
                 </div>
                 
@@ -149,11 +195,16 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    disabled={isAuthenticating || isLoading}
                   />
                 </div>
                 
-                <button type="submit" className="btn btn-primary btn-block">
-                  Giriş Yap
+                <button 
+                  type="submit" 
+                  className="btn btn-primary btn-block"
+                  disabled={isAuthenticating || isLoading}
+                >
+                  {isAuthenticating ? 'Giriş Yapılıyor...' : 'Giriş Yap'}
                 </button>
                 
                 <p className="form-footer">
@@ -176,6 +227,7 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
+                    disabled={isAuthenticating || isLoading}
                   />
                 </div>
                 
@@ -187,6 +239,7 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    disabled={isAuthenticating || isLoading}
                   />
                 </div>
                 
@@ -198,11 +251,17 @@ const AuthForms: React.FC<AuthFormsProps> = ({ onClose }) => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    disabled={isAuthenticating || isLoading}
                   />
+                  <small className="form-text text-muted">Şifreniz en az 6 karakter olmalıdır.</small>
                 </div>
                 
-                <button type="submit" className="btn btn-primary btn-block">
-                  Kayıt Ol
+                <button 
+                  type="submit" 
+                  className="btn btn-primary btn-block"
+                  disabled={isAuthenticating || isLoading}
+                >
+                  {isAuthenticating ? 'Kayıt Yapılıyor...' : 'Kayıt Ol'}
                 </button>
                 
                 <p className="form-footer">
