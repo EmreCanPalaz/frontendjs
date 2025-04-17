@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAppContext } from '../../context/AppContext';
 import './ProductCard.css';
+import ProductReviews from './ProductReviews';
 
 export interface ProductProps {
   id: number;
@@ -22,11 +23,26 @@ interface ProductCardProps extends ProductProps {
 const ProductCard: React.FC<ProductCardProps> = ({ 
   id, title, price, description, category, image, rating, onAddToCart 
 }) => {
-  // Context'ten favori fonksiyonlarını alalım
-  const { addToFavorites, removeFromFavorites, isFavorite } = useAppContext();
+  const { 
+    addToFavorites, 
+    removeFromFavorites, 
+    isFavorite, 
+    getProductReviews 
+  } = useAppContext();
+  
+  const [showReviews, setShowReviews] = useState(false);
   
   // Bu ürün favori mi kontrol edelim
   const productIsFavorite = isFavorite(id);
+  
+  // Ürünün yorumlarını alalım
+  const productReviews = getProductReviews(id);
+  const reviewCount = productReviews.length;
+  
+  // Ortalama puanı hesaplayalım
+  const averageRating = reviewCount > 0 
+    ? productReviews.reduce((sum, review) => sum + review.rating, 0) / reviewCount 
+    : rating?.rate || 0;
   
   // Sepete ekleme işlemleri
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -60,6 +76,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
   
+  // Yorumları görüntüleme/gizleme
+  const toggleReviews = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowReviews(!showReviews);
+  };
+  
   return (
     <div className="card product-card h-100">
       <div className="product-image-container">
@@ -83,12 +105,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {[...Array(5)].map((_, i) => (
               <i 
                 key={i} 
-                className={`bi ${i < Math.floor(rating.rate) ? 'bi-star-fill' : 'bi-star'}`}
-                title={i < Math.floor(rating.rate) ? "Yıldız" : "Boş Yıldız"}
+                className={`bi ${i < Math.floor(averageRating) ? 'bi-star-fill' : 'bi-star'}`}
+                title={`${averageRating.toFixed(1)} / 5`}
               ></i>
             ))}
           </div>
-          <small className="text-muted ms-2" title={`${rating.count} müşteri değerlendirmesi`}>({rating.count} reviews)</small>
+          <small 
+            className="text-muted ms-2 review-count" 
+            onClick={toggleReviews}
+            title="Yorumları görüntüle"
+          >
+            ({reviewCount} yorum)
+          </small>
         </div>
         <div className="d-flex justify-content-between align-items-center">
           <h5 className="product-price mb-0">${price.toFixed(2)}</h5>
@@ -101,6 +129,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <i className="bi bi-eye"></i>
             </button>
             <button 
+              className="btn btn-sm btn-outline-info me-1" 
+              onClick={toggleReviews}
+              title="Yorumları görüntüle"
+            >
+              <i className="bi bi-chat-text"></i>
+            </button>
+            <button 
               className="btn btn-sm btn-primary" 
               onClick={handleAddToCart}
               title="Sepete ekle"
@@ -110,6 +145,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         </div>
       </div>
+      
+      {/* Yorumlar Modal */}
+      {showReviews && (
+        <ProductReviews 
+          productId={id} 
+          productName={title}
+          onClose={() => setShowReviews(false)} 
+        />
+      )}
     </div>
   );
 };

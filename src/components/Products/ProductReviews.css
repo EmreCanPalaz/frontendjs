@@ -1,0 +1,148 @@
+.reviews-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.reviews-container {
+  background-color: white;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+}
+
+.reviews-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reviews-title {
+  margin: 0;
+  font-size: 1.25rem;
+  flex: 1;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333;
+}
+
+.reviews-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-height: calc(90vh - 80px);
+}
+
+.no-reviews {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.no-reviews i {
+  font-size: 3rem;
+  color: #ccc;
+  margin-bottom: 1rem;
+}
+
+.no-reviews p {
+  color: #666;
+  margin: 0.5rem 0;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.review-item {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  border-left: 4px solid #007bff;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.review-rating {
+  color: #ffa41c;
+  margin-top: 0.25rem;
+}
+
+.review-date {
+  color: #888;
+}
+
+.review-comment {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  white-space: pre-line;
+}
+
+.add-review-form {
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.add-review-form h4 {
+  margin-bottom: 1rem;
+}
+
+.rating-input {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+
+.rating-input input {
+  display: none;
+}
+
+.rating-input label {
+  color: #ccc;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 0 0.2rem;
+}
+
+.rating-input label:hover,
+.rating-input label:hover ~ label,
+.rating-input input:checked ~ label {
+  color: #ffa41c;
+}
+
+/* ProductCard.css dosyasına eklenecek stil */
+.review-count {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.review-count:hover {
+  color: #007bff !important;
+}

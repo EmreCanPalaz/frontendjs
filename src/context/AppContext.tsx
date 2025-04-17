@@ -24,6 +24,17 @@ export interface CartItem extends ProductProps {
   quantity: number;
 }
 
+// Yorum tipi tanımlaması
+export interface Review {
+  id: number;
+  productId: number;
+  userId: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  date: string;
+}
+
 // Context için tip tanımları
 interface AppContextType {
   // Auth
@@ -46,6 +57,13 @@ interface AppContextType {
   addToFavorites: (product: ProductProps) => void;
   removeFromFavorites: (productId: number) => void;
   isFavorite: (productId: number) => boolean;
+  
+  // Reviews
+  reviews: Review[];
+  addReview: (productId: number, rating: number, comment: string) => void;
+  getProductReviews: (productId: number) => Review[];
+  getUserReviews: () => Review[];
+  deleteReview: (reviewId: number) => void;
 }
 
 // Context oluşturma
@@ -67,6 +85,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   
   // Favorites state
   const [favorites, setFavorites] = useState<ProductProps[]>([]);
+  
+  // Reviews state
+  const [reviews, setReviews] = useState<Review[]>([]);
   
   // LocalStorage'dan verileri yükleme
   useEffect(() => {
@@ -91,6 +112,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.error('Favoriler verisi ayrıştırılamadı:', e);
       }
     }
+    
+    // Yorumları yükle
+    const savedReviews = localStorage.getItem('reviews');
+    if (savedReviews) {
+      try {
+        const parsedReviews = JSON.parse(savedReviews);
+        setReviews(parsedReviews);
+      } catch (e) {
+        console.error('Yorumlar verisi ayrıştırılamadı:', e);
+      }
+    }
   }, []);
   
   // Sepet güncellendiğinde localStorage'a kaydetme ve total hesaplama
@@ -106,6 +138,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     localStorage.setItem('favorites', JSON.stringify(favorites));
   }, [favorites]);
+  
+  // Yorumlar güncellendiğinde localStorage'a kaydetme
+  useEffect(() => {
+    localStorage.setItem('reviews', JSON.stringify(reviews));
+  }, [reviews]);
   
   // Login fonksiyonu
   const login = (email: string, password: string) => {
@@ -221,6 +258,42 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return favorites.some(item => item.id === productId);
   };
 
+  // Ürüne yorum ekleme
+  const addReview = (productId: number, rating: number, comment: string) => {
+    if (!userData.isLoggedIn) {
+      alert('Yorum yapabilmek için giriş yapmalısınız!');
+      return;
+    }
+    
+    const newReview: Review = {
+      id: Date.now(), // Benzersiz ID için timestamp kullanıyoruz
+      productId,
+      userId: userData.email, // Kullanıcı ID'si olarak email'i kullanıyoruz
+      userName: userData.username,
+      rating,
+      comment,
+      date: new Date().toISOString()
+    };
+    
+    setReviews(prevReviews => [...prevReviews, newReview]);
+  };
+  
+  // Ürüne ait yorumları getirme
+  const getProductReviews = (productId: number) => {
+    return reviews.filter(review => review.productId === productId);
+  };
+  
+  // Kullanıcının yaptığı yorumları getirme
+  const getUserReviews = () => {
+    if (!userData.isLoggedIn) return [];
+    return reviews.filter(review => review.userId === userData.email);
+  };
+  
+  // Yorum silme
+  const deleteReview = (reviewId: number) => {
+    setReviews(prevReviews => prevReviews.filter(review => review.id !== reviewId));
+  };
+
   // Context value
   const value: AppContextType = {
     userData,
@@ -237,7 +310,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     favorites,
     addToFavorites,
     removeFromFavorites,
-    isFavorite
+    isFavorite,
+    reviews,
+    addReview,
+    getProductReviews,
+    getUserReviews,
+    deleteReview
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
