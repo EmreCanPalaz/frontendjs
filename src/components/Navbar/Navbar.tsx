@@ -58,17 +58,19 @@ const Navbar: React.FC<NavbarProps> = ({ onCartClick, cartItemCount, onLoginClic
             <li className="nav-item">
               <a className="nav-link" href="#products-section">Ürünler</a>
             </li>
-            <li className="nav-item">
-              <button
-                className="btn btn-danger nav-link"
-                onClick={() => {
-                  console.log('Stok Kontrol butonuna tıklandı');
-                  if (onStockControlClick) onStockControlClick();
-                }}
-              >
-                Stok Kontrol (Test)
-              </button>
-            </li>
+            {userData.hasStockControlAccess && (
+              <li className="nav-item">
+                <button
+                  className="btn btn-danger nav-link"
+                  onClick={() => {
+                    console.log('Stok Kontrol butonuna tıklandı');
+                    if (onStockControlClick) onStockControlClick();
+                  }}
+                >
+                  Stok Kontrol
+                </button>
+              </li>
+            )}
           </ul>
           <form className="d-flex">
             <input className="form-control me-2" type="search" placeholder="Search products..." aria-label="Search" />

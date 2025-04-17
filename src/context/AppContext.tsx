@@ -6,6 +6,7 @@ export interface UserData {
   email: string;
   isLoggedIn: boolean;
   isAdmin?: boolean;
+  hasStockControlAccess?: boolean;
 }
 
 export interface ProductProps {
@@ -154,14 +155,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTimeout(() => {
       // admin@example.com ile giriş yapanları admin olarak işaretle
       const isAdmin = email === 'admin@example.com';
+      // example@gmail.com kullanıcısına stok kontrol erişimi ver
+      const hasStockControlAccess = email === 'example@gmail.com';
 
-      console.log('Kullanıcı giriş yapıyor:', { email, isAdmin });
+      console.log('Kullanıcı giriş yapıyor:', { email, isAdmin, hasStockControlAccess });
 
       setUserData({
         username: email.split('@')[0],
         email,
         isLoggedIn: true,
-        isAdmin
+        isAdmin,
+        hasStockControlAccess
       });
       setIsLoading(false);
     }, 1500); // Kimlik doğrulama mesajının daha görünür olması için süreyi uzattık
@@ -178,12 +182,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setTimeout(() => {
       // admin@example.com ile kayıt olanları admin olarak işaretle
       const isAdmin = email === 'admin@example.com';
+      // example@gmail.com kullanıcısına stok kontrol erişimi ver
+      const hasStockControlAccess = email === 'example@gmail.com';
 
       setUserData({
         username,
         email,
         isLoggedIn: true,
-        isAdmin
+        isAdmin,
+        hasStockControlAccess
       });
       setIsLoading(false);
     }, 1500); // Kayıt işlemi mesajının görünür olması için süreyi uzattık
@@ -197,7 +204,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       username: '',
       email: '',
       isLoggedIn: false,
-      isAdmin: false
+      isAdmin: false,
+      hasStockControlAccess: false
     });
   };
 
